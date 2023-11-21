@@ -1,7 +1,7 @@
-name: "pdx_rnaseq"
+name: pdx_rnaseq
 output_dir: ../docs
 navbar:
-  title: "pdx_rnaseq"
+  title: pdx_rnaseq
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fab fa-github
+    text: Source code
+    href: https://github.com/sabeard4/pdx_rnaseq
 output:
   workflowr::wflow_html:
     toc: yes
