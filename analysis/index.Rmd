@@ -8,4 +8,17 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+## Transcriptomic analysis of patient derived xenografts (PDX) with response and poor response to the CHK1 inhibitor SRA737
+
+This site contains analysis of RNA-seq data generated from PDX models derived from high grade serous ovarian cancers (HGSOC).
+
+### Mapping based DGE analysis
+
+* Read mapping, counting and quality control
+  * [MultiQC report](multiqc_report.html): Mapping and quality statistics
+  
+* Differential gene expression (DGE) analysis
+  * [DGE analysis](limma_analysis.html): Exploratory data analysis and DGE analysis comparing PDX models with good and poor response to the CHK1i SRA737
+  
+* Exploratory results
+  * [Interactive MD plot](MD-Plot.html): Glimma output for DGE analysis
