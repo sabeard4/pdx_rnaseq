@@ -21,4 +21,4 @@ This site contains analysis of RNA-seq data generated from PDX models derived fr
   * [DGE analysis](limma_analysis.html): Exploratory data analysis and DGE analysis comparing PDX models with good and poor response to the CHK1i SRA737
   
 * Exploratory results
-  * [Interactive MD plot](MD-Plot.html): Glimma output for DGE analysis
+  * [Interactive MD plot](glimma-plots/MD-Plot.html): Glimma output for DGE analysis
