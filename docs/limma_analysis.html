@@ -523,15 +523,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree2bd560ec95962043e490e302d2f00a42ad8ae9d6targetblank2bd560ea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree3963225a7dffbe1137da6eac53300a858c26a2b5targetblank3963225a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/sabeard4/pdx_rnaseq/tree/2bd560ec95962043e490e302d2f00a42ad8ae9d6" target="_blank">2bd560e</a>
+<a href="https://github.com/sabeard4/pdx_rnaseq/tree/3963225a7dffbe1137da6eac53300a858c26a2b5" target="_blank">3963225</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree2bd560ec95962043e490e302d2f00a42ad8ae9d6targetblank2bd560ea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree3963225a7dffbe1137da6eac53300a858c26a2b5targetblank3963225a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -541,7 +541,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/sabeard4/pdx_rnaseq/tree/2bd560ec95962043e490e302d2f00a42ad8ae9d6" target="_blank">2bd560e</a>.
+<a href="https://github.com/sabeard4/pdx_rnaseq/tree/3963225a7dffbe1137da6eac53300a858c26a2b5" target="_blank">3963225</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -619,6 +619,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/3963225a7dffbe1137da6eac53300a858c26a2b5/analysis/limma_analysis.Rmd" target="_blank">3963225</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+<td>
+Correct wording a spelling
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/sabeard4/pdx_rnaseq/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/limma_analysis.html" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/sabeard4/pdx_rnaseq/blob/2bd560ec95962043e490e302d2f00a42ad8ae9d6/analysis/limma_analysis.Rmd" target="_blank">2bd560e</a>
 </td>
 <td>
@@ -673,11 +707,11 @@ Add analysis
 </div>
 </div>
 <p>The sequencing data used in the following study was generated at AGRF
-using an Illumina stranded mRNA library prep. RNA was collected from PDX
-tumours from three mice each for eight different PDX tumours, resulting
-in 24 samples. Samples were sequenced on the Novaseq 6000 platform to
-generate 150bp paired-end reads. All samples were sequenced across three
-lanes.</p>
+(Australian Genome Research Facility) using an Illumina stranded mRNA
+library prep. RNA was collected from PDX tumours from three mice each
+for eight different PDX tumours, resulting in 24 samples. Samples were
+sequenced on the Novaseq 6000 platform to generate 150bp paired-end
+reads. All samples were sequenced across three lanes.</p>
 <p>Sequence quality was assessed by <code>fastqc</code> and was found to
 be high for all samples. Reads were mapped to GRch38 Ensembl release 110
 with <code>hisat2</code> (v2.2.1) and reads aligning with genes were
@@ -752,9 +786,83 @@ col.lane &lt;- as.character(col.lane)
 plotMDS(lcpm, labels=counts$samples$sample, col=col.pdx)
 title(main=&quot;A. Sample groups&quot;)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot_before_summing_counts-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot_before_summing_counts-1">
+Past versions of mds-plot_before_summing_counts-1.png
+</button>
+</p>
+<div id="fig-mds-plot_before_summing_counts-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/mds-plot_before_summing_counts-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>plotMDS(lcpm, labels=counts$samples$lane, col=col.lane)
 title(main=&quot;B. Sequencing lanes&quot;)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot_before_summing_counts-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot_before_summing_counts-2">
+Past versions of mds-plot_before_summing_counts-2.png
+</button>
+</p>
+<div id="fig-mds-plot_before_summing_counts-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/mds-plot_before_summing_counts-2.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Sum counts from technical replicates
 samplenames &lt;- counts$samples$sample
 counts &lt;- sumTechReps(counts, ID=samplenames)</code></pre>
@@ -827,6 +935,43 @@ for (i in 2:nsamples){
   lines(den$x, den$y, col=col[i], lwd=2)
 }</code></pre>
 <p><img src="figure/limma_analysis.Rmd/density%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-density-plot-1">
+Past versions of "density plot-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-density-plot-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/density plot-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>lcpm2 &lt;- cpm(counts_filtered, log=TRUE)
 plot(density(lcpm2[,1]), col=col[1], lwd=2, ylim=c(0,0.4), las=2, main=&quot;&quot;, xlab=&quot;&quot;)
 title(main=&quot;B. Filtered data&quot;, xlab=&quot;Log-cpm&quot;)
@@ -836,6 +981,43 @@ for (i in 2:nsamples){
   lines(den$x, den$y, col=col[i], lwd=2)
 }</code></pre>
 <p><img src="figure/limma_analysis.Rmd/density%20plot-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-density-plot-2">
+Past versions of "density plot-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-density-plot-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/density plot-2.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>TMM normalization was applied to account for any highly expressed
 genes monopolizing the sequencing and to account for the underlying
 differences in the distributions of expressed genes between samples.</p>
@@ -905,6 +1087,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/expression-plot-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/expression-plot-1.png" target="_blank">b745edd</a>
@@ -1282,7 +1475,7 @@ Sally Beard
 </div>
 </div>
 <div id="differential-expression-analysis" class="section level2">
-<h2>Differential expression analysis</h2>
+<h2>Differential Expression Analysis</h2>
 <p>In the following analysis, a test is set up to compare responders
 with poor-responders, excluding outlier sample 1177. A means model was
 fitted where the model parameters represent the means of each pdx model,
@@ -1318,6 +1511,43 @@ vfit.cont &lt;- contrasts.fit(vfit, contrasts=contrast)
 efit &lt;- eBayes(vfit.cont)
 plotSA(efit, main=&quot;Final model: Mean-variance trend&quot;)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/unnamed-chunk-7-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Find number of differentially expressed genes
 kable_styling(kable(summary(decideTests(efit)), caption=&quot;Table 1: Number of differentially expressed genes in responsive PDX versus poor-responders&quot;))</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
@@ -1373,8 +1603,12 @@ tfit &lt;- treat(vfit.cont, lfc=0.5)
 
 # Make table with number of DEGs for each test
 dt &lt;- decideTests(tfit)
-kable_styling(kable(summary(dt, caption=&quot;Table 2: Number of differentially expressed genes from treat method in responsive PDX versus poor-responders&quot;)))</code></pre>
+kable_styling(kable(summary(dt), caption=&quot;Table 2: Number of differentially expressed genes from treat method in responsive PDX versus poor-responders&quot;))</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Table 2: Number of differentially expressed genes from treat method in
+responsive PDX versus poor-responders
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -1830,21 +2064,60 @@ heatmap.2(lcpm2[i,], scale=&quot;row&quot;,
 # Add the legend to the plot
 legend(&quot;left&quot;, legend = legend_text, fill = legend_colours, title = &quot;Sample Groups&quot;)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/heatmap-1.png" width="1152" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-heatmap-1">
+Past versions of heatmap-1.png
+</button>
+</p>
+<div id="fig-heatmap-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/heatmap-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="pathway-analysis" class="section level2">
-<h2>Pathway analysis</h2>
+<h2>Pathway Analysis</h2>
 <p>To explore molecular pathways that are altered in CHK1i responsive
-PDX models, significant genes with FDR&lt;0.05 were imported into The
-Database for Annotation, Visualization and Integrated Discovery, DAVID
-(v2023q3), run by the NIH, which is a web-based functional annotation
-tool. Up regulated genes and down regulated genes were tested separately
-to find terms that were over-represented among statistically significant
-genes than would be expected by chance. Gene Ontology (GO) terms and
-Kyoto Encyclopedia of Genes and Genomes (KEGG) biological pathways were
-interrogated. GO terms represent specific biological processes,
-molecular functions, or cellular components associated with the genes.
-The background list of genes was compiled from the full list of genes
-that were detected in any of the samples.</p>
+PDX models compared to poor-responders, significant genes with
+FDR&lt;0.05 were imported into The Database for Annotation,
+Visualization and Integrated Discovery, <a
+href="https://david.ncifcrf.gov/">DAVID</a> (v2023q3), run by the NIH,
+which is a web-based functional annotation tool. Up regulated genes and
+down regulated genes were tested separately to find terms that were
+over-represented among statistically significant genes than would be
+expected by chance. Gene Ontology (GO) terms and Kyoto Encyclopedia of
+Genes and Genomes (KEGG) biological pathways were interrogated. GO terms
+represent specific biological processes, molecular functions, or
+cellular components associated with the genes. The background list of
+genes was compiled from the full list of genes that were detected in any
+of the samples.</p>
 <p>In the following outputs, fold enrichment indicates that the genes in
 the list are that many times more likely to be associated with a
 particular term compared to what would be expected by chance. The FDR
@@ -1878,6 +2151,43 @@ ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment
     plot.subtitle = element_text(size = 10, hjust = 0.5)
   )</code></pre>
 <p><img src="figure/limma_analysis.Rmd/david_kegg_up-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-david_kegg_up-1">
+Past versions of david_kegg_up-1.png
+</button>
+</p>
+<div id="fig-david_kegg_up-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/david_kegg_up-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Input GO data from DAVID output for upregulated genes
 data &lt;- read.csv(&quot;./data/david/david_go_up_treat.csv&quot;, header = TRUE)
 
@@ -1908,6 +2218,43 @@ ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment
   ) +
   facet_grid(Category ~ ., scales = &quot;free_y&quot;, space = &quot;free_y&quot;)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/david_go_up-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-david_go_up-1">
+Past versions of david_go_up-1.png
+</button>
+</p>
+<div id="fig-david_go_up-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/david_go_up-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Input kegg data from DAVID output for down regulated genes
 data &lt;- read.csv(&quot;./data/david/david_kegg_limma_down.csv&quot;, header = TRUE)
 
@@ -1933,6 +2280,43 @@ ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment
     plot.subtitle = element_text(size = 10, hjust = 0.5)
   )</code></pre>
 <p><img src="figure/limma_analysis.Rmd/david_kegg_down-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-david_kegg_down-1">
+Past versions of david_kegg_down-1.png
+</button>
+</p>
+<div id="fig-david_kegg_down-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/david_kegg_down-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Input GO data from DAVID output for downregulated genes
 data &lt;- read.csv(&quot;./data/david/david_go_down_treat.csv&quot;, header = TRUE)
 
@@ -1960,6 +2344,43 @@ ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment
   ) +
   facet_grid(Category ~ ., scales = &quot;free_y&quot;, space = &quot;free_y&quot;)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/david_go_down-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-david_go_down-1">
+Past versions of david_go_down-1.png
+</button>
+</p>
+<div id="fig-david_go_down-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/0beffaea0c22a4f11dd17efbc547be608b528e70/docs/figure/limma_analysis.Rmd/david_go_down-1.png" target="_blank">0beffae</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 4.2.2 (2022-10-31)
 Platform: aarch64-apple-darwin20 (64-bit)
