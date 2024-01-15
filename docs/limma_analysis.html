@@ -392,7 +392,7 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-11-22
+<strong>Last updated:</strong> 2024-01-15
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -523,15 +523,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree99eab407645a0054197d5519a2a51228f9b3f756targetblank99eab40a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree2bd560ec95962043e490e302d2f00a42ad8ae9d6targetblank2bd560ea">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/sabeard4/pdx_rnaseq/tree/99eab407645a0054197d5519a2a51228f9b3f756" target="_blank">99eab40</a>
+<a href="https://github.com/sabeard4/pdx_rnaseq/tree/2bd560ec95962043e490e302d2f00a42ad8ae9d6" target="_blank">2bd560e</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree99eab407645a0054197d5519a2a51228f9b3f756targetblank99eab40a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomsabeard4pdxrnaseqtree2bd560ec95962043e490e302d2f00a42ad8ae9d6targetblank2bd560ea"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -541,7 +541,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/sabeard4/pdx_rnaseq/tree/99eab407645a0054197d5519a2a51228f9b3f756" target="_blank">99eab40</a>.
+<a href="https://github.com/sabeard4/pdx_rnaseq/tree/2bd560ec95962043e490e302d2f00a42ad8ae9d6" target="_blank">2bd560e</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -563,15 +563,12 @@ Ignored files:
     Ignored:    data/.DS_Store
 
 Untracked files:
-    Untracked:  README.html
     Untracked:  analysis/MDS_plot.jpeg
     Untracked:  analysis/MDS_plot.tiff
     Untracked:  analysis/heatmap.jpeg
     Untracked:  data/counts/
-    Untracked:  glimma-plots/
-
-Unstaged changes:
-    Modified:   README.md
+    Untracked:  data/david/
+    Untracked:  limma_treat.csv
 
 </code></pre>
 <p>
@@ -622,6 +619,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/2bd560ec95962043e490e302d2f00a42ad8ae9d6/analysis/limma_analysis.Rmd" target="_blank">2bd560e</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2024-01-15
+</td>
+<td>
+Add pathway analysis and correct grammar
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/sabeard4/pdx_rnaseq/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/limma_analysis.html" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/sabeard4/pdx_rnaseq/blob/99eab407645a0054197d5519a2a51228f9b3f756/analysis/limma_analysis.Rmd" target="_blank">99eab40</a>
 </td>
 <td>
@@ -645,14 +676,13 @@ Add analysis
 using an Illumina stranded mRNA library prep. RNA was collected from PDX
 tumours from three mice each for eight different PDX tumours, resulting
 in 24 samples. Samples were sequenced on the Novaseq 6000 platform to
-generate 150bp PE end reads. All samples were sequenced across three
+generate 150bp paired-end reads. All samples were sequenced across three
 lanes.</p>
 <p>Sequence quality was assessed by <code>fastqc</code> and was found to
 be high for all samples. Reads were mapped to GRch38 Ensembl release 110
 with <code>hisat2</code> (v2.2.1) and reads aligning with genes were
 quantified using <code>HTseq</code> (v3.0.3).</p>
 <pre class="r"><code># Import required libraries
-library(here)
 library(limma)
 library(edgeR)
 library(tidyverse)
@@ -686,19 +716,16 @@ counts &lt;- counts[-MetaTags, ]
 # Update library size to reflect mapped reads
 counts$samples$lib.size &lt;- colSums(counts$counts)
 
-# Obtain sample names from file names
+# Obtain sample names from file names and add sample-specific information
 sample &lt;- strsplit2(files, &quot;_&quot;)[,1:3]
 sample_names &lt;- apply(sample, 1, function(row) paste(row, collapse = &quot;_&quot;))
 counts$samples$mouse &lt;- sample[,2]
-counts$samples$pdx &lt;- sample[,1]
+counts$samples$pdx &lt;- as.factor(sample[,1])
 replicates &lt;- rep(c(1,1,1,2,2,2,3,3,3), times = 8)
 counts$samples$replicates &lt;- replicates
 sample_name &lt;- paste(counts$samples$pdx, counts$samples$replicates, sep = &quot;_&quot;)
 counts$samples$sample &lt;- sample_name
-
-# Add sample-level information related to experimental design (and possible confounding factors) to the count matrix
 counts$samples$lane &lt;- as.factor(strsplit2(files, &quot;_&quot;)[,6])
-counts$samples$pdx &lt;- as.factor(sample[,1])
 
 # Import information for each gene
 geneid &lt;- rownames(counts)
@@ -724,10 +751,10 @@ levels(col.lane) &lt;-  brewer.pal(nlevels(col.lane), &quot;Set2&quot;)
 col.lane &lt;- as.character(col.lane)
 plotMDS(lcpm, labels=counts$samples$sample, col=col.pdx)
 title(main=&quot;A. Sample groups&quot;)</code></pre>
-<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/limma_analysis.Rmd/mds-plot_before_summing_counts-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>plotMDS(lcpm, labels=counts$samples$lane, col=col.lane)
 title(main=&quot;B. Sequencing lanes&quot;)</code></pre>
-<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/limma_analysis.Rmd/mds-plot_before_summing_counts-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Sum counts from technical replicates
 samplenames &lt;- counts$samples$sample
 counts &lt;- sumTechReps(counts, ID=samplenames)</code></pre>
@@ -771,7 +798,9 @@ interfere with statistical approximations, so they were filtered out
 before performing the analysis. Genes with low or no counts (counts per
 million reads that corresponded to less than ~10 reads in any 9 samples
 (smallest group size)) were filtered out of the analysis, based on the
-recommendations in the <code>edgeR</code> documentation.</p>
+recommendations in the <code>edgeR</code> documentation. Approximately
+half the genes were removed at this step, leaving 18314 genes in the
+analysis.</p>
 <pre class="r"><code># Filter out genes with low expression
 keep.exprs &lt;- filterByExpr(counts, group=counts$samples$group)
 table(keep.exprs)</code></pre>
@@ -797,7 +826,7 @@ for (i in 2:nsamples){
   den &lt;- density(lcpm[,i])
   lines(den$x, den$y, col=col[i], lwd=2)
 }</code></pre>
-<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/limma_analysis.Rmd/density%20plot-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>lcpm2 &lt;- cpm(counts_filtered, log=TRUE)
 plot(density(lcpm2[,1]), col=col[1], lwd=2, ylim=c(0,0.4), las=2, main=&quot;&quot;, xlab=&quot;&quot;)
 title(main=&quot;B. Filtered data&quot;, xlab=&quot;Log-cpm&quot;)
@@ -806,69 +835,109 @@ for (i in 2:nsamples){
   den &lt;- density(lcpm2[,i])
   lines(den$x, den$y, col=col[i], lwd=2)
 }</code></pre>
-<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>TMM normalisation was applied to account for any highly expressed
-genes monopolising the sequencing and to account for the underlying
+<p><img src="figure/limma_analysis.Rmd/density%20plot-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>TMM normalization was applied to account for any highly expressed
+genes monopolizing the sequencing and to account for the underlying
 differences in the distributions of expressed genes between samples.</p>
-<pre class="r"><code># Apply TMM normalisation
-norm_counts &lt;- calcNormFactors(counts_filtered, method = &quot;TMM&quot;)</code></pre>
+<pre class="r"><code># Apply TMM normalization
+counts &lt;- calcNormFactors(counts_filtered, method = &quot;TMM&quot;)</code></pre>
 <p>Effective library sizes varied from around 50 million reads to more
 than 250 million reads, with the median just under 150 million reads
 (A). The range and distribution of expression values looked fairly
-uniform between samples, and TMM normalisation further improved
+uniform between samples, and TMM normalization further improved
 this.</p>
-<pre class="r"><code>dat &lt;- data.frame(lib = norm_counts$samples$lib.size,
-                  status = norm_counts$samples$group,
-                  sample = colnames(norm_counts))
+<pre class="r"><code># Create plots to explore library size and normalization
+dat &lt;- data.frame(lib = counts$samples$lib.size,
+                  status = counts$samples$group,
+                  sample = colnames(counts))
 p1 &lt;- ggplot(dat, aes(x = sample, y = lib, fill = status)) +
   geom_bar(stat = &quot;identity&quot;) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size = 8)) +
   labs(x = &quot;Sample&quot;, y = &quot;Library size&quot;,
        fill = &quot;CHK1i&quot;, title = &quot;A. Library size after filtering&quot;) +
   geom_hline(yintercept = median(dat$lib), linetype = &quot;dashed&quot;) +
   scale_x_discrete(limits = dat$sample)
 
-dat &lt;- reshape2::melt(cpm(norm_counts, normalized.lib.sizes = FALSE, log = TRUE),
+dat &lt;- reshape2::melt(cpm(counts, normalized.lib.sizes = FALSE, log = TRUE),
                       value.name = &quot;cpm&quot;)
-dat$status &lt;- rep(norm_counts$samples$group, each = nrow(norm_counts))
+dat$status &lt;- rep(counts$samples$group, each = nrow(counts))
 colnames(dat)[2] &lt;- &quot;sample&quot;
 p2 &lt;- ggplot(dat, aes(x = sample, y = cpm, fill = status)) +
   geom_boxplot(show.legend = FALSE, outlier.size = 0.75) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7), plot.title = element_text(size = 8)) +
   labs(x = &quot;Sample&quot;, y = &quot;Log-CPM&quot;,
        fill = &quot;CHK1i treatment&quot;, title = &quot;B. Expression values after filtering&quot;) +
   geom_hline(yintercept = median(dat$lib), linetype = &quot;dashed&quot;)
 
-dat &lt;- reshape2::melt(cpm(norm_counts, normalized.lib.sizes = TRUE, log = TRUE),
+dat &lt;- reshape2::melt(cpm(counts, normalized.lib.sizes = TRUE, log = TRUE),
                       value.name = &quot;cpm&quot;)
 
-dat$status &lt;- rep(norm_counts$samples$group, each = nrow(norm_counts))
+dat$status &lt;- rep(counts$samples$group, each = nrow(counts))
 colnames(dat)[2] &lt;- &quot;sample&quot;
 p3 &lt;- ggplot(dat, aes(x = sample, y = cpm, fill = status)) +
   geom_boxplot(show.legend = FALSE, outlier.size = 0.75) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7), plot.title = element_text(size = 8)) +
   labs(x = &quot;Sample&quot;, y = &quot;Log-CPM&quot;,
-       fill = &quot;CHK1i treatment&quot;, title = &quot;C. Expression values after normalisation&quot;) +
+       fill = &quot;CHK1i treatment&quot;, title = &quot;C. Expression values after normalization&quot;) +
   geom_hline(yintercept = median(dat$lib), linetype = &quot;dashed&quot;)
 
 p1 / (p2 + p3) + plot_layout(guides = &quot;collect&quot;)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/expression-plot-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-expression-plot-1">
+Past versions of expression-plot-1.png
+</button>
+</p>
+<div id="fig-expression-plot-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/expression-plot-1.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Multi-dimensional scaling (MDS) plots show the largest sources of
 variation in the data. They are a good way of identifying structure in
 the data and exploring relationships between samples. The following
-plots examine the first dimensions coloured for known features of the
+plots examine the first dimensions colored for known features of the
 data. The samples do not cluster in any of the first dimensions based on
 their CHK1i responder status, suggesting that this is not the largest
 source of variation in the data. Sample 1177 is an outlier in the first
-dimension, which is confounded with it being the only OCS sample. Sample
-206 also appears like it may be an outlier in dimension 2, this may
-correspond to it being the only biopsy specimen. The remaining samples
-cluster reasonably closely together, except for WO-2, which is a bit
-closer to 206 in the first and second dimensions, which may reflect that
-these are the only two platinum sensitive pdx models. Overall, the large
-amount of variation in the first dimension suggests that there might be
-tumour specific differences in expression driving the variation.</p>
-<pre class="r"><code>dims &lt;- list(c(1,2), c(1,3), c(2,3), c(3,4))
+dimension, which is confounded with it being the only OCS sample, for
+this reason, sample 1177 is not included the differential expression
+analysis. Sample 206 also appears more different from the other samples
+in dimension 2. The remaining samples cluster reasonably closely
+together, except for WO-2, which is a bit closer to 206 in the first and
+second dimensions, which may reflect that these are the only two
+platinum sensitive PDX models. Overall, the large amount of variation in
+the first dimension suggests there are likely to be tumor specific
+differences in expression driving the variation.</p>
+<pre class="r"><code># Make MDS plots to explore sources of variation in the data
+dims &lt;- list(c(1,2), c(1,3), c(2,3), c(3,4))
 vars &lt;- c(&quot;group&quot;, &quot;pdx&quot;, &quot;site&quot;, &quot;pathology&quot;, &quot;specimen&quot;, &quot;platinum&quot;)
 patches &lt;- vector(&quot;list&quot;, length(vars))
 
@@ -876,11 +945,11 @@ for(i in 1:length(vars)){
   p &lt;- vector(&quot;list&quot;, length(dims))
   
   for(j in 1:length(dims)){
-    mds &lt;- plotMDS(cpm(norm_counts, log = TRUE), top = 1000, gene.selection=&quot;common&quot;, 
+    mds &lt;- plotMDS(cpm(counts, log = TRUE), top = 1000, gene.selection=&quot;common&quot;, 
                    plot = FALSE, dim.plot = dims[[j]])
     dat &lt;- tibble::tibble(x = mds$x, y = mds$y,
-                          sample = norm_counts$samples$sample,
-                          variable = pull(norm_counts$samples, vars[i]))
+                          sample = counts$samples$sample,
+                          variable = pull(counts$samples, vars[i]))
     
     p[[j]] &lt;- ggplot(dat, aes(x = x, y = y, colour = variable)) +
       geom_text(aes(label = sample), size = 2.5) +
@@ -898,36 +967,257 @@ for(i in 1:length(vars)){
 patches</code></pre>
 <pre><code>[[1]]</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot-1">
+Past versions of mds-plot-1.png
+</button>
+</p>
+<div id="fig-mds-plot-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/mds-plot-1.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre><code>
 [[2]]</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot-2">
+Past versions of mds-plot-2.png
+</button>
+</p>
+<div id="fig-mds-plot-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/mds-plot-2.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre><code>
 [[3]]</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot-3">
+Past versions of mds-plot-3.png
+</button>
+</p>
+<div id="fig-mds-plot-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/mds-plot-3.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre><code>
 [[4]]</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot-4">
+Past versions of mds-plot-4.png
+</button>
+</p>
+<div id="fig-mds-plot-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/mds-plot-4.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre><code>
 [[5]]</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot-5">
+Past versions of mds-plot-5.png
+</button>
+</p>
+<div id="fig-mds-plot-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/mds-plot-5.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre><code>
 [[6]]</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds-plot-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds-plot-6">
+Past versions of mds-plot-6.png
+</button>
+</p>
+<div id="fig-mds-plot-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/mds-plot-6.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Create MDS plot for supplementary figure
-
 dims &lt;- list(c(1, 2), c(1, 3), c(2, 3), c(3, 4))
 
 # Create a list to store the MDS plots
 mds_plots &lt;- list()
 
 for (i in 1:length(dims)) {
-  mds &lt;- plotMDS(cpm(norm_counts, log = TRUE), top = 1000, gene.selection = &quot;common&quot;, 
+  mds &lt;- plotMDS(cpm(counts, log = TRUE), top = 1000, gene.selection = &quot;common&quot;, 
                  plot = FALSE, dim.plot = dims[[i]])
   
   dat &lt;- tibble::tibble(x = mds$x, y = mds$y,
-                        pdx = pull(norm_counts$samples, &quot;pdx&quot;),
-                        group = pull(norm_counts$samples, &quot;group&quot;),
-                        pathology = pull(norm_counts$samples, &quot;pathology&quot;))
+                        pdx = pull(counts$samples, &quot;pdx&quot;),
+                        group = pull(counts$samples, &quot;group&quot;),
+                        pathology = pull(counts$samples, &quot;pathology&quot;))
   
   p &lt;- ggplot(dat, aes(x = x, y = y)) +
     geom_point(aes(color = pdx, shape = group, fill = pathology), size = 3) +
@@ -953,16 +1243,53 @@ mds_arranged &lt;- plot_grid(
 # Display the arranged MDS plots
 print(mds_arranged)</code></pre>
 <p><img src="figure/limma_analysis.Rmd/mds_figure-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-mds_figure-1">
+Past versions of mds_figure-1.png
+</button>
+</p>
+<div id="fig-mds_figure-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/sabeard4/pdx_rnaseq/blob/b745eddb6436ffbde5c6e0d61cba1c65e8509c9d/docs/figure/limma_analysis.Rmd/mds_figure-1.png" target="_blank">b745edd</a>
+</td>
+<td>
+Sally Beard
+</td>
+<td>
+2023-11-22
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="differential-expression-analysis" class="section level2">
 <h2>Differential expression analysis</h2>
 <p>In the following analysis, a test is set up to compare responders
-with non-responders, excluding outlier sample 1177. A means model was
+with poor-responders, excluding outlier sample 1177. A means model was
 fitted where the model parameters represent the means of each pdx model,
 and responsive models were compared to non-responsive models by testing
 the difference between the parameter estimates in each group.</p>
 <pre class="r"><code># Set up design matrix with parameter for each pdx model
-pdx &lt;- as.factor(norm_counts$samples$pdx)
+pdx &lt;- as.factor(counts$samples$pdx)
 design1 &lt;- model.matrix(~0 + pdx)
 colnames(design1) &lt;- gsub(&quot;group&quot;, &quot;&quot;, colnames(design1))
 new_names &lt;- c(&quot;pdxWO_19&quot;, &quot;pdxWO_2&quot;)
@@ -983,19 +1310,20 @@ the mean-variance relationship. Number of significant genes listed below
 in table 1.</p>
 <pre class="r"><code># Apply voom function to the normalised counts
 par(mfrow=c(1,2))
-v &lt;- voom(norm_counts, design1, plot=TRUE)</code></pre>
-<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># Fit linear model and apply contrast for test
+v &lt;- voom(counts, design1, plot=TRUE)
+
+# Fit linear model and apply contrast for test
 vfit &lt;- lmFit(v, design1)
 vfit.cont &lt;- contrasts.fit(vfit, contrasts=contrast)
 efit &lt;- eBayes(vfit.cont)
 plotSA(efit, main=&quot;Final model: Mean-variance trend&quot;)</code></pre>
-<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Find number of differentially expressed genes
-kable_styling(kable(summary(decideTests(efit)), caption=&quot;Table 1: Number of differentially expressed genes&quot;))</code></pre>
+kable_styling(kable(summary(decideTests(efit)), caption=&quot;Table 1: Number of differentially expressed genes in responsive PDX versus poor-responders&quot;))</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
-Table 1: Number of differentially expressed genes
+Table 1: Number of differentially expressed genes in responsive PDX
+versus poor-responders
 </caption>
 <thead>
 <tr>
@@ -1033,19 +1361,19 @@ Up
 </tr>
 </tbody>
 </table>
-<p>Since the number of differentially expressed genes was very high, the
+<p>Since the number of differentially expressed genes was high, the
 <code>treat</code> method was applied to set a fold change cutoff of
 0.5, which reduced the number of significant genes to a more manageable
 number. Table 2 shows the number of significantly differentially
-expressed genes after applying the fold change cut off and running each
-of the tests. Table 3 shows the top 20 DE genes for responder vs poor
+expressed genes after applying the fold change cut off and running the
+test. Table 3 shows the top 20 DE genes for the responder vs poor
 responder test.</p>
 <pre class="r"><code># Apply log fold change cutoff to find significant genes
 tfit &lt;- treat(vfit.cont, lfc=0.5)
 
 # Make table with number of DEGs for each test
 dt &lt;- decideTests(tfit)
-kable_styling(kable(summary(dt, caption=&quot;Table 2: Number of differentially expressed genes from treat method&quot;)))</code></pre>
+kable_styling(kable(summary(dt, caption=&quot;Table 2: Number of differentially expressed genes from treat method in responsive PDX versus poor-responders&quot;)))</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
@@ -1085,10 +1413,10 @@ Up
 </table>
 <pre class="r"><code># Make table with top DEGs for each test
 top_treat_resp.v.nonresp &lt;- data.frame(topTreat(tfit, n=20, sort.by = &quot;P&quot;))
-kable_styling(kable(top_treat_resp.v.nonresp[,c(3,5,6,9)], caption=&quot;Table 3: DE genes in responsive pdx versus poor responders&quot;, digits = 20))</code></pre>
+kable_styling(kable(top_treat_resp.v.nonresp[,c(3,5,6,9)], caption=&quot;Table 3: Top 20 DE genes in responsive PDX versus poor-responders&quot;, digits = 20))</code></pre>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
-Table 3: DE genes in responsive pdx versus poor responders
+Table 3: Top 20 DE genes in responsive PDX versus poor-responders
 </caption>
 <thead>
 <tr>
@@ -1453,17 +1781,18 @@ C19orf12
 </table>
 <p>To look at the levels of gene expression in individual samples the
 <code>GlMDPlot</code> function was used. This creates a two-panel
-interactive MD plot in an html. The left plot shows the log-fold-change
-vs average expression with up regulated genes coloured red and down
-regulated genes coloured blue. The right plot shows the expression
-levels of a particular gene in each sample, grouped by pdx model.
-Hovering over points on left plot will plot expression level for the
-corresponding gene, clicking on points will fix the expression plot to
-gene. Clicking on a row in the table has the same effect as clicking on
-the corresponding gene in the plot. The values in the table correspond
-to the test of responders versus non-responders excluding outlier pdx
-1177 samples.</p>
-<pre class="r"><code>lcpm &lt;- cpm(norm_counts, log=TRUE)
+interactive MD (mean-difference) plot in an html. The left plot shows
+the log-fold-change vs average expression with up regulated genes
+colored red and down regulated genes colored blue. The right plot shows
+the expression levels of a particular gene in each sample, grouped by
+PDX model. Hovering over points on left plot will plot expression level
+for the corresponding gene, clicking on points will fix the expression
+plot to gene. Clicking on a row in the table has the same effect as
+clicking on the corresponding gene in the plot. The values in the table
+correspond to the test of responders versus poor-responders excluding
+outlier pdx 1177 samples.</p>
+<pre class="r"><code># Make Glimma MD plot
+lcpm &lt;- cpm(counts, log=TRUE)
 glMDPlot(tfit, coef = 1, counts = lcpm, status=dt, main=&quot;MD plot: Responders versus poor responders&quot;, groups=pdx)</code></pre>
 <p>Click <a href="glimma-plots/MD-Plot.html">here</a> to see interactive
 MD plot</p>
@@ -1471,11 +1800,10 @@ MD plot</p>
 differentially expressed are actually being driven by just one PDX
 model, and not reflective of the difference between responders and poor
 responders.</p>
-<p>Below is a basic heatmap made using the expression of the top 200
-genes. As expected from the PCA plots and visualisations, pdx 206 is
-behaving very differently to the other samples for a subset of genes.
-Also sample 931 clusters with the responders rather than the
-non-responders.</p>
+<p>Below is a heatmap made using the expression of the top 200 genes. As
+expected from the MDS plots and visualizations, PDX 206 is behaving very
+differently to the other samples for a subset of genes. Also sample 931
+clusters with the responders rather than the poor-responders.</p>
 <pre class="r"><code># Specify color palette from RColorBrewer
 my_palette &lt;- colorRampPalette(brewer.pal(9, &quot;RdBu&quot;))(100)
 group_colours &lt;- c(&quot;response&quot; = brewer.pal(8, &quot;Set2&quot;)[1],  # Green
@@ -1491,9 +1819,9 @@ legend_text &lt;- c(&quot;Responders&quot;, &quot;Poor responders&quot;)
 dge &lt;- data.frame(topTreat(tfit, n=Inf, sort.by = &quot;P&quot;))
 lcpm2 &lt;- lcpm[, -c(4:6)]
 responsive.v.non &lt;- dge$ENSEMBL[1:200]
-i &lt;- which(norm_counts$genes$ENSEMBL %in% responsive.v.non)
+i &lt;- which(counts$genes$ENSEMBL %in% responsive.v.non)
 heatmap.2(lcpm2[i,], scale=&quot;row&quot;,
-   labRow=norm_counts$genes$SYMBOL[i], labCol=colnames(lcpm2), 
+   labRow=counts$genes$SYMBOL[i], labCol=colnames(lcpm2), 
    col=my_palette, trace=&quot;none&quot;, density.info=&quot;none&quot;, 
    margin=c(8,6), lhei=c(2,10), dendrogram=&quot;column&quot;, key.title = &quot;Expression Levels&quot;,
    ColSideColors = group_colours[unlist(group)[4:24]],
@@ -1501,7 +1829,137 @@ heatmap.2(lcpm2[i,], scale=&quot;row&quot;,
 
 # Add the legend to the plot
 legend(&quot;left&quot;, legend = legend_text, fill = legend_colours, title = &quot;Sample Groups&quot;)</code></pre>
-<p><img src="figure/limma_analysis.Rmd/unnamed-chunk-14-1.png" width="1152" style="display: block; margin: auto;" /></p>
+<p><img src="figure/limma_analysis.Rmd/heatmap-1.png" width="1152" style="display: block; margin: auto;" /></p>
+</div>
+<div id="pathway-analysis" class="section level2">
+<h2>Pathway analysis</h2>
+<p>To explore molecular pathways that are altered in CHK1i responsive
+PDX models, significant genes with FDR&lt;0.05 were imported into The
+Database for Annotation, Visualization and Integrated Discovery, DAVID
+(v2023q3), run by the NIH, which is a web-based functional annotation
+tool. Up regulated genes and down regulated genes were tested separately
+to find terms that were over-represented among statistically significant
+genes than would be expected by chance. Gene Ontology (GO) terms and
+Kyoto Encyclopedia of Genes and Genomes (KEGG) biological pathways were
+interrogated. GO terms represent specific biological processes,
+molecular functions, or cellular components associated with the genes.
+The background list of genes was compiled from the full list of genes
+that were detected in any of the samples.</p>
+<p>In the following outputs, fold enrichment indicates that the genes in
+the list are that many times more likely to be associated with a
+particular term compared to what would be expected by chance. The FDR
+(false-discovery rate) is calculated from p-values generated by a
+modified Fisher’s exact test adapted to measure the gene enrichment in
+annotation terms. The gene count represents how many genes from the
+input list of significant genes is present in that gene set or
+pathway.</p>
+<pre class="r"><code># Input kegg data from DAVID output for upregulated genes
+data &lt;- read.csv(&quot;./data/david/david_kegg_up_treat.csv&quot;, header = TRUE)
+
+# Filter data for FDR &lt; 0.1
+filtered_data &lt;- data %&gt;%
+  filter(FDR &lt; 0.1)
+
+# Create a dot plot using ggplot2
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = &quot;blue&quot;, high = &quot;red&quot;) +
+  labs(
+    title = &quot;Pathway Enrichment Analysis&quot;,
+    x = &quot;Fold Enrichment&quot;,
+    y = &quot;KEGG Pathways&quot;,
+    size = &quot;Gene Count&quot;,
+    color = &quot;FDR&quot;,
+    subtitle = &quot;Genes upregulated in responsive pdx compared to poor-responders&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = &quot;bold&quot;, hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5)
+  )</code></pre>
+<p><img src="figure/limma_analysis.Rmd/david_kegg_up-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Input GO data from DAVID output for upregulated genes
+data &lt;- read.csv(&quot;./data/david/david_go_up_treat.csv&quot;, header = TRUE)
+
+# Filter data for FDR &lt; 0.1
+filtered_data &lt;- data %&gt;%
+  filter(FDR &lt; 0.1)
+
+# Change gene counts to numerical values
+filtered_data$Count &lt;- as.numeric(filtered_data$Count)
+
+# Create a faceted dot plot using ggplot2 with equal spacing on the y-axis
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = &quot;blue&quot;, high = &quot;red&quot;) +
+  labs(
+    title = &quot;GO Term Enrichment Analysis&quot;,
+    x = &quot;Fold Enrichment&quot;,
+    y = &quot;GO Terms&quot;,
+    size = &quot;Gene Count&quot;,
+    color = &quot;FDR&quot;,
+    subtitle = &quot;Genes upregulated in responsive pdx compared to poor-responders&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = &quot;bold&quot;, hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    strip.text = element_text(size = 7)
+  ) +
+  facet_grid(Category ~ ., scales = &quot;free_y&quot;, space = &quot;free_y&quot;)</code></pre>
+<p><img src="figure/limma_analysis.Rmd/david_go_up-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Input kegg data from DAVID output for down regulated genes
+data &lt;- read.csv(&quot;./data/david/david_kegg_limma_down.csv&quot;, header = TRUE)
+
+# Filter data for FDR &lt; 0.1
+filtered_data &lt;- data %&gt;%
+  filter(FDR &lt; 0.1)
+
+# Create a dot plot using ggplot2
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = &quot;blue&quot;, high = &quot;red&quot;) +
+  labs(
+    title = &quot;Pathway Enrichment Analysis&quot;,
+    x = &quot;Fold Enrichment&quot;,
+    y = &quot;KEGG Pathways&quot;,
+    size = &quot;Gene Count&quot;,
+    color = &quot;FDR&quot;,
+    subtitle = &quot;Genes down regulated in responsive pdx compared to poor-responders&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = &quot;bold&quot;, hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5)
+  )</code></pre>
+<p><img src="figure/limma_analysis.Rmd/david_kegg_down-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Input GO data from DAVID output for downregulated genes
+data &lt;- read.csv(&quot;./data/david/david_go_down_treat.csv&quot;, header = TRUE)
+
+# Filter data for FDR &lt; 0.1
+filtered_data &lt;- data %&gt;%
+  filter(FDR &lt; 0.1)
+
+# Create a faceted dot plot using ggplot2 with equal spacing on the y-axis
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = &quot;blue&quot;, high = &quot;red&quot;) +
+  labs(
+    title = &quot;GO Term Enrichment Analysis&quot;,
+    x = &quot;Fold Enrichment&quot;,
+    y = &quot;GO Terms&quot;,
+    size = &quot;Gene Count&quot;,
+    color = &quot;FDR&quot;,
+    subtitle = &quot;Genes down regulated in responsive pdx compared to poor-responders&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = &quot;bold&quot;, hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    strip.text = element_text(size = 7)  # Adjust the angle as needed
+  ) +
+  facet_grid(Category ~ ., scales = &quot;free_y&quot;, space = &quot;free_y&quot;)</code></pre>
+<p><img src="figure/limma_analysis.Rmd/david_go_down-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 4.2.2 (2022-10-31)
 Platform: aarch64-apple-darwin20 (64-bit)
@@ -1554,8 +2012,7 @@ other attached packages:
 [33] tidyverse_2.0.0                        
 [34] edgeR_3.40.2                           
 [35] limma_3.54.2                           
-[36] here_1.0.1                             
-[37] workflowr_1.7.1                        
+[36] workflowr_1.7.1                        
 
 loaded via a namespace (and not attached):
   [1] BiocFileCache_2.6.1         systemfonts_1.0.5          
@@ -1563,7 +2020,7 @@ loaded via a namespace (and not attached):
   [5] digest_0.6.33               htmltools_0.5.6.1          
   [7] fansi_1.0.5                 magrittr_2.0.3             
   [9] memoise_2.0.1               tzdb_0.4.0                 
- [11] annotate_1.76.0             Biostrings_2.66.0          
+ [11] Biostrings_2.66.0           annotate_1.76.0            
  [13] matrixStats_1.0.0           svglite_2.1.2              
  [15] timechange_0.2.0            prettyunits_1.2.0          
  [17] colorspace_2.1-0            blob_1.2.4                 
@@ -1575,8 +2032,8 @@ loaded via a namespace (and not attached):
  [29] zlibbioc_1.44.0             XVector_0.38.0             
  [31] webshot_0.5.5               DelayedArray_0.24.0        
  [33] scales_1.2.1                DBI_1.1.3                  
- [35] Rcpp_1.0.11                 xtable_1.8-4               
- [37] viridisLite_0.4.2           progress_1.2.2             
+ [35] Rcpp_1.0.11                 viridisLite_0.4.2          
+ [37] xtable_1.8-4                progress_1.2.2             
  [39] bit_4.0.5                   htmlwidgets_1.6.2          
  [41] httr_1.4.7                  farver_2.1.1               
  [43] pkgconfig_2.0.3             XML_3.99-0.14              
@@ -1676,8 +2133,7 @@ other attached packages:
 [33] tidyverse_2.0.0                        
 [34] edgeR_3.40.2                           
 [35] limma_3.54.2                           
-[36] here_1.0.1                             
-[37] workflowr_1.7.1                        
+[36] workflowr_1.7.1                        
 
 loaded via a namespace (and not attached):
   [1] BiocFileCache_2.6.1         systemfonts_1.0.5          
@@ -1685,7 +2141,7 @@ loaded via a namespace (and not attached):
   [5] digest_0.6.33               htmltools_0.5.6.1          
   [7] fansi_1.0.5                 magrittr_2.0.3             
   [9] memoise_2.0.1               tzdb_0.4.0                 
- [11] annotate_1.76.0             Biostrings_2.66.0          
+ [11] Biostrings_2.66.0           annotate_1.76.0            
  [13] matrixStats_1.0.0           svglite_2.1.2              
  [15] timechange_0.2.0            prettyunits_1.2.0          
  [17] colorspace_2.1-0            blob_1.2.4                 
@@ -1697,8 +2153,8 @@ loaded via a namespace (and not attached):
  [29] zlibbioc_1.44.0             XVector_0.38.0             
  [31] webshot_0.5.5               DelayedArray_0.24.0        
  [33] scales_1.2.1                DBI_1.1.3                  
- [35] Rcpp_1.0.11                 xtable_1.8-4               
- [37] viridisLite_0.4.2           progress_1.2.2             
+ [35] Rcpp_1.0.11                 viridisLite_0.4.2          
+ [37] xtable_1.8-4                progress_1.2.2             
  [39] bit_4.0.5                   htmlwidgets_1.6.2          
  [41] httr_1.4.7                  farver_2.1.1               
  [43] pkgconfig_2.0.3             XML_3.99-0.14              
