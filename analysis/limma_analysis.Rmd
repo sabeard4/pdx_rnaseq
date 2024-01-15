@@ -13,13 +13,12 @@ knitr::opts_chunk$set(message = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
 ```
 
-The sequencing data used in the following study was generated at AGRF using an Illumina stranded mRNA library prep. RNA was collected from PDX tumours from three mice each for eight different PDX tumours, resulting in 24 samples. Samples were sequenced on the Novaseq 6000 platform to generate 150bp PE end reads. All samples were sequenced across three lanes.
+The sequencing data used in the following study was generated at AGRF using an Illumina stranded mRNA library prep. RNA was collected from PDX tumours from three mice each for eight different PDX tumours, resulting in 24 samples. Samples were sequenced on the Novaseq 6000 platform to generate 150bp paired-end reads. All samples were sequenced across three lanes.
 
 Sequence quality was assessed by `fastqc` and was found to be high for all samples. Reads were mapped to GRch38 Ensembl release 110 with `hisat2` (v2.2.1) and reads aligning with genes were quantified using `HTseq` (v3.0.3).
 
 ```{r}
 # Import required libraries
-library(here)
 library(limma)
 library(edgeR)
 library(tidyverse)
@@ -56,19 +55,16 @@ counts <- counts[-MetaTags, ]
 # Update library size to reflect mapped reads
 counts$samples$lib.size <- colSums(counts$counts)
 
-# Obtain sample names from file names
+# Obtain sample names from file names and add sample-specific information
 sample <- strsplit2(files, "_")[,1:3]
 sample_names <- apply(sample, 1, function(row) paste(row, collapse = "_"))
 counts$samples$mouse <- sample[,2]
-counts$samples$pdx <- sample[,1]
+counts$samples$pdx <- as.factor(sample[,1])
 replicates <- rep(c(1,1,1,2,2,2,3,3,3), times = 8)
 counts$samples$replicates <- replicates
 sample_name <- paste(counts$samples$pdx, counts$samples$replicates, sep = "_")
 counts$samples$sample <- sample_name
-
-# Add sample-level information related to experimental design (and possible confounding factors) to the count matrix
 counts$samples$lane <- as.factor(strsplit2(files, "_")[,6])
-counts$samples$pdx <- as.factor(sample[,1])
 
 # Import information for each gene
 geneid <- rownames(counts)
@@ -85,7 +81,7 @@ counts <- counts[keep, ]
 
 The MDS plots below show that there is no batch effect from sequencing lane, so technical replicates run across the three lanes were summed together.
 
-```{r}
+```{r mds-plot_before_summing_counts}
 # Make MDS plots to assess technical replicate 
 lcpm <- cpm(counts, log=TRUE)
 col.pdx <- counts$samples$pdx
@@ -141,7 +137,7 @@ M <- median(counts$samples$lib.size) * 1e-6
 
 ## Quality Control
 
-Genes with no or low counts are unlikely to be biologically important, they provide little evidence for differential expression, and interfere with statistical approximations, so they were filtered out before performing the analysis. Genes with low or no counts (counts per million reads that corresponded to less than ~10 reads in any 9 samples (smallest group size)) were filtered out of the analysis, based on the recommendations in the `edgeR` documentation.
+Genes with no or low counts are unlikely to be biologically important, they provide little evidence for differential expression, and interfere with statistical approximations, so they were filtered out before performing the analysis. Genes with low or no counts (counts per million reads that corresponded to less than ~10 reads in any 9 samples (smallest group size)) were filtered out of the analysis, based on the recommendations in the `edgeR` documentation. Approximately half the genes were removed at this step, leaving 18314 genes in the analysis.
 
 ```{r}
 # Filter out genes with low expression
@@ -153,7 +149,7 @@ samplenames <- colnames(counts_filtered)
 
 Plotting the distribution of log-CPM values (below) showed that before filtering (A) many genes in each sample had low or no expression, with negative log-CPM values. These genes were removed from the analysis after filtering (B). 
 
-```{r}
+```{r density plot}
 # Make density plots for counts before and after filtering out genes with low expression
 par(mfrow = c(1,1))
 lcpmz <- lcpm
@@ -176,60 +172,61 @@ for (i in 2:nsamples){
   den <- density(lcpm2[,i])
   lines(den$x, den$y, col=col[i], lwd=2)
 }
-
 ```
 
-TMM normalisation was applied to account for any highly expressed genes monopolising the sequencing and to account for the underlying differences in the distributions of expressed genes between samples.
+TMM normalization was applied to account for any highly expressed genes monopolizing the sequencing and to account for the underlying differences in the distributions of expressed genes between samples.
 
 ```{r}
-# Apply TMM normalisation
-norm_counts <- calcNormFactors(counts_filtered, method = "TMM")
+# Apply TMM normalization
+counts <- calcNormFactors(counts_filtered, method = "TMM")
 ```
 
-Effective library sizes varied from around 50 million reads to more than 250 million reads, with the median just under 150 million reads (A). The range and distribution of expression values looked fairly uniform between samples, and TMM normalisation further improved this.
+Effective library sizes varied from around 50 million reads to more than 250 million reads, with the median just under 150 million reads (A). The range and distribution of expression values looked fairly uniform between samples, and TMM normalization further improved this.
 
 ```{r expression-plot}
-dat <- data.frame(lib = norm_counts$samples$lib.size,
-                  status = norm_counts$samples$group,
-                  sample = colnames(norm_counts))
+# Create plots to explore library size and normalization
+dat <- data.frame(lib = counts$samples$lib.size,
+                  status = counts$samples$group,
+                  sample = colnames(counts))
 p1 <- ggplot(dat, aes(x = sample, y = lib, fill = status)) +
   geom_bar(stat = "identity") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), plot.title = element_text(size = 8)) +
   labs(x = "Sample", y = "Library size",
        fill = "CHK1i", title = "A. Library size after filtering") +
   geom_hline(yintercept = median(dat$lib), linetype = "dashed") +
   scale_x_discrete(limits = dat$sample)
 
-dat <- reshape2::melt(cpm(norm_counts, normalized.lib.sizes = FALSE, log = TRUE),
+dat <- reshape2::melt(cpm(counts, normalized.lib.sizes = FALSE, log = TRUE),
                       value.name = "cpm")
-dat$status <- rep(norm_counts$samples$group, each = nrow(norm_counts))
+dat$status <- rep(counts$samples$group, each = nrow(counts))
 colnames(dat)[2] <- "sample"
 p2 <- ggplot(dat, aes(x = sample, y = cpm, fill = status)) +
   geom_boxplot(show.legend = FALSE, outlier.size = 0.75) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7), plot.title = element_text(size = 8)) +
   labs(x = "Sample", y = "Log-CPM",
        fill = "CHK1i treatment", title = "B. Expression values after filtering") +
   geom_hline(yintercept = median(dat$lib), linetype = "dashed")
 
-dat <- reshape2::melt(cpm(norm_counts, normalized.lib.sizes = TRUE, log = TRUE),
+dat <- reshape2::melt(cpm(counts, normalized.lib.sizes = TRUE, log = TRUE),
                       value.name = "cpm")
 
-dat$status <- rep(norm_counts$samples$group, each = nrow(norm_counts))
+dat$status <- rep(counts$samples$group, each = nrow(counts))
 colnames(dat)[2] <- "sample"
 p3 <- ggplot(dat, aes(x = sample, y = cpm, fill = status)) +
   geom_boxplot(show.legend = FALSE, outlier.size = 0.75) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 7), plot.title = element_text(size = 8)) +
   labs(x = "Sample", y = "Log-CPM",
-       fill = "CHK1i treatment", title = "C. Expression values after normalisation") +
+       fill = "CHK1i treatment", title = "C. Expression values after normalization") +
   geom_hline(yintercept = median(dat$lib), linetype = "dashed")
 
 p1 / (p2 + p3) + plot_layout(guides = "collect")
 ```
 
-Multi-dimensional scaling (MDS) plots show the largest sources of variation in the data. They are a good way of identifying structure in the data and exploring relationships between samples. The following plots examine the first dimensions coloured for known features of the data. The samples do not cluster in any of the first dimensions based on their CHK1i responder status, suggesting that this is not the largest source of variation in the data. Sample 1177 is an outlier in the first dimension, which is confounded with it being the only OCS sample. Sample 206 also appears like it may be an outlier in dimension 2, this may correspond to it being the only biopsy specimen. The remaining samples cluster reasonably closely together, except for WO-2, which is a bit closer to 206 in the first and second dimensions, which may reflect that these are the only two platinum sensitive pdx models. Overall, the large amount of variation in the first dimension suggests that there might be tumour specific differences in expression driving the variation.
+Multi-dimensional scaling (MDS) plots show the largest sources of variation in the data. They are a good way of identifying structure in the data and exploring relationships between samples. The following plots examine the first dimensions colored for known features of the data. The samples do not cluster in any of the first dimensions based on their CHK1i responder status, suggesting that this is not the largest source of variation in the data. Sample 1177 is an outlier in the first dimension, which is confounded with it being the only OCS sample, for this reason, sample 1177 is not included the differential expression analysis. Sample 206 also appears more different from the other samples in dimension 2. The remaining samples cluster reasonably closely together, except for WO-2, which is a bit closer to 206 in the first and second dimensions, which may reflect that these are the only two platinum sensitive PDX models. Overall, the large amount of variation in the first dimension suggests there are likely to be tumor specific differences in expression driving the variation. 
 
 
 ```{r mds-plot}
+# Make MDS plots to explore sources of variation in the data
 dims <- list(c(1,2), c(1,3), c(2,3), c(3,4))
 vars <- c("group", "pdx", "site", "pathology", "specimen", "platinum")
 patches <- vector("list", length(vars))
@@ -238,11 +235,11 @@ for(i in 1:length(vars)){
   p <- vector("list", length(dims))
   
   for(j in 1:length(dims)){
-    mds <- plotMDS(cpm(norm_counts, log = TRUE), top = 1000, gene.selection="common", 
+    mds <- plotMDS(cpm(counts, log = TRUE), top = 1000, gene.selection="common", 
                    plot = FALSE, dim.plot = dims[[j]])
     dat <- tibble::tibble(x = mds$x, y = mds$y,
-                          sample = norm_counts$samples$sample,
-                          variable = pull(norm_counts$samples, vars[i]))
+                          sample = counts$samples$sample,
+                          variable = pull(counts$samples, vars[i]))
     
     p[[j]] <- ggplot(dat, aes(x = x, y = y, colour = variable)) +
       geom_text(aes(label = sample), size = 2.5) +
@@ -263,20 +260,19 @@ patches
 
 ```{r mds_figure}
 # Create MDS plot for supplementary figure
-
 dims <- list(c(1, 2), c(1, 3), c(2, 3), c(3, 4))
 
 # Create a list to store the MDS plots
 mds_plots <- list()
 
 for (i in 1:length(dims)) {
-  mds <- plotMDS(cpm(norm_counts, log = TRUE), top = 1000, gene.selection = "common", 
+  mds <- plotMDS(cpm(counts, log = TRUE), top = 1000, gene.selection = "common", 
                  plot = FALSE, dim.plot = dims[[i]])
   
   dat <- tibble::tibble(x = mds$x, y = mds$y,
-                        pdx = pull(norm_counts$samples, "pdx"),
-                        group = pull(norm_counts$samples, "group"),
-                        pathology = pull(norm_counts$samples, "pathology"))
+                        pdx = pull(counts$samples, "pdx"),
+                        group = pull(counts$samples, "group"),
+                        pathology = pull(counts$samples, "pathology"))
   
   p <- ggplot(dat, aes(x = x, y = y)) +
     geom_point(aes(color = pdx, shape = group, fill = pathology), size = 3) +
@@ -306,12 +302,12 @@ print(mds_arranged)
 
 ## Differential expression analysis
 
-In the following analysis, a test is set up to compare responders with non-responders, excluding outlier sample 1177. A means model was fitted where the model parameters represent the means of each pdx model, and responsive models were compared to non-responsive models by testing the difference between the parameter estimates in each group.
+In the following analysis, a test is set up to compare responders with poor-responders, excluding outlier sample 1177. A means model was fitted where the model parameters represent the means of each pdx model, and responsive models were compared to non-responsive models by testing the difference between the parameter estimates in each group.
 
 
 ```{r}
 # Set up design matrix with parameter for each pdx model
-pdx <- as.factor(norm_counts$samples$pdx)
+pdx <- as.factor(counts$samples$pdx)
 design1 <- model.matrix(~0 + pdx)
 colnames(design1) <- gsub("group", "", colnames(design1))
 new_names <- c("pdxWO_19", "pdxWO_2")
@@ -332,10 +328,8 @@ Apply linear modelling using the `limma` function, which uses the log-CPM values
 ```{r}
 # Apply voom function to the normalised counts
 par(mfrow=c(1,2))
-v <- voom(norm_counts, design1, plot=TRUE)
-```
+v <- voom(counts, design1, plot=TRUE)
 
-```{r}
 # Fit linear model and apply contrast for test
 vfit <- lmFit(v, design1)
 vfit.cont <- contrasts.fit(vfit, contrasts=contrast)
@@ -345,10 +339,10 @@ plotSA(efit, main="Final model: Mean-variance trend")
 
 ```{r}
 # Find number of differentially expressed genes
-kable_styling(kable(summary(decideTests(efit)), caption="Table 1: Number of differentially expressed genes"))
+kable_styling(kable(summary(decideTests(efit)), caption="Table 1: Number of differentially expressed genes in responsive PDX versus poor-responders"))
 ```
 
-Since the number of differentially expressed genes was very high, the `treat` method was applied to set a fold change cutoff of 0.5, which reduced the number of significant genes to a more manageable number. Table 2 shows the number of significantly differentially expressed genes after applying the fold change cut off and running each of the tests. Table 3 shows the top 20 DE genes for responder vs poor responder test.
+Since the number of differentially expressed genes was high, the `treat` method was applied to set a fold change cutoff of 0.5, which reduced the number of significant genes to a more manageable number. Table 2 shows the number of significantly differentially expressed genes after applying the fold change cut off and running the test. Table 3 shows the top 20 DE genes for the responder vs poor responder test.
 
 ```{r}
 # Apply log fold change cutoff to find significant genes
@@ -356,18 +350,20 @@ tfit <- treat(vfit.cont, lfc=0.5)
 
 # Make table with number of DEGs for each test
 dt <- decideTests(tfit)
-kable_styling(kable(summary(dt, caption="Table 2: Number of differentially expressed genes from treat method")))
+kable_styling(kable(summary(dt, caption="Table 2: Number of differentially expressed genes from treat method in responsive PDX versus poor-responders")))
 
 # Make table with top DEGs for each test
 top_treat_resp.v.nonresp <- data.frame(topTreat(tfit, n=20, sort.by = "P"))
-kable_styling(kable(top_treat_resp.v.nonresp[,c(3,5,6,9)], caption="Table 3: DE genes in responsive pdx versus poor responders", digits = 20))
+kable_styling(kable(top_treat_resp.v.nonresp[,c(3,5,6,9)], caption="Table 3: Top 20 DE genes in responsive PDX versus poor-responders", digits = 20))
 ```
 
 
-To look at the levels of gene expression in individual samples the `GlMDPlot` function was used. This creates a two-panel interactive MD plot in an html. The left plot shows the log-fold-change vs average expression with up regulated genes coloured red and down regulated genes coloured blue. The right plot shows the expression levels of a particular gene in each sample, grouped by pdx model. Hovering over points on left plot will plot expression level for the corresponding gene, clicking on points will fix the expression plot to gene. Clicking on a row in the table has the same effect as clicking on the corresponding gene in the plot. The values in the table correspond to the test of responders versus non-responders excluding outlier pdx 1177 samples.
+To look at the levels of gene expression in individual samples the `GlMDPlot` function was used. This creates a two-panel interactive MD (mean-difference) plot in an html. The left plot shows the log-fold-change vs average expression with up regulated genes colored red and down regulated genes colored blue. The right plot shows the expression levels of a particular gene in each sample, grouped by PDX model. Hovering over points on left plot will plot expression level for the corresponding gene, clicking on points will fix the expression plot to gene. Clicking on a row in the table has the same effect as clicking on the corresponding gene in the plot. The values in the table correspond to the test of responders versus poor-responders excluding outlier pdx 1177 samples.
+
 
 ```{r}
-lcpm <- cpm(norm_counts, log=TRUE)
+# Make Glimma MD plot
+lcpm <- cpm(counts, log=TRUE)
 glMDPlot(tfit, coef = 1, counts = lcpm, status=dt, main="MD plot: Responders versus poor responders", groups=pdx)
 ```
 
@@ -375,10 +371,10 @@ Click [here](glimma-plots/MD-Plot.html) to see interactive MD plot
 
 Investigating the top genes shows that many of the genes called as differentially expressed are actually being driven by just one PDX model, and not reflective of the difference between responders and poor responders.
 
-Below is a basic heatmap made using the expression of the top 200 genes. As expected from the PCA plots and visualisations, pdx 206 is behaving very differently to the other samples for a subset of genes. Also sample 931 clusters with the responders rather than the non-responders.
+Below is a heatmap made using the expression of the top 200 genes. As expected from the MDS plots and visualizations, PDX 206 is behaving very differently to the other samples for a subset of genes. Also sample 931 clusters with the responders rather than the poor-responders.
 
 
-```{r , fig.width=12, fig.height=10}
+```{r heatmap, fig.width=12, fig.height=10}
 # Specify color palette from RColorBrewer
 my_palette <- colorRampPalette(brewer.pal(9, "RdBu"))(100)
 group_colours <- c("response" = brewer.pal(8, "Set2")[1],  # Green
@@ -394,9 +390,9 @@ legend_text <- c("Responders", "Poor responders")
 dge <- data.frame(topTreat(tfit, n=Inf, sort.by = "P"))
 lcpm2 <- lcpm[, -c(4:6)]
 responsive.v.non <- dge$ENSEMBL[1:200]
-i <- which(norm_counts$genes$ENSEMBL %in% responsive.v.non)
+i <- which(counts$genes$ENSEMBL %in% responsive.v.non)
 heatmap.2(lcpm2[i,], scale="row",
-   labRow=norm_counts$genes$SYMBOL[i], labCol=colnames(lcpm2), 
+   labRow=counts$genes$SYMBOL[i], labCol=colnames(lcpm2), 
    col=my_palette, trace="none", density.info="none", 
    margin=c(8,6), lhei=c(2,10), dendrogram="column", key.title = "Expression Levels",
    ColSideColors = group_colours[unlist(group)[4:24]],
@@ -406,8 +402,154 @@ heatmap.2(lcpm2[i,], scale="row",
 legend("left", legend = legend_text, fill = legend_colours, title = "Sample Groups")
 ```
 
+
+## Pathway analysis
+
+To explore molecular pathways that are altered in CHK1i responsive PDX models, significant genes with FDR<0.05 were imported into The Database for Annotation, Visualization and Integrated Discovery, DAVID (v2023q3), run by the NIH, which is a web-based functional annotation tool. Up regulated genes and down regulated genes were tested separately to find terms that were over-represented among statistically significant genes than would be expected by chance. Gene Ontology (GO) terms and Kyoto Encyclopedia of Genes and Genomes (KEGG) biological pathways were interrogated. GO terms represent specific biological processes, molecular functions, or cellular components associated with the genes. The background list of genes was compiled from the full list of genes that were detected in any of the samples.
+
+In the following outputs, fold enrichment indicates that the genes in the list are that many times more likely to be associated with a particular term compared to what would be expected by chance. The FDR (false-discovery rate) is calculated from p-values generated by a modified Fisher's exact test adapted to measure the gene enrichment in annotation terms. The gene count represents how many genes from the input list of significant genes is present in that gene set or pathway.
+
+
+```{r david_kegg_up}
+# Input kegg data from DAVID output for upregulated genes
+data <- read.csv("./data/david/david_kegg_up_treat.csv", header = TRUE)
+
+# Filter data for FDR < 0.1
+filtered_data <- data %>%
+  filter(FDR < 0.1)
+
+# Create a dot plot using ggplot2
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = "blue", high = "red") +
+  labs(
+    title = "Pathway Enrichment Analysis",
+    x = "Fold Enrichment",
+    y = "KEGG Pathways",
+    size = "Gene Count",
+    color = "FDR",
+    subtitle = "Genes upregulated in responsive pdx compared to poor-responders"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5)
+  )
+```
+
+```{r david_go_up}
+# Input GO data from DAVID output for upregulated genes
+data <- read.csv("./data/david/david_go_up_treat.csv", header = TRUE)
+
+# Filter data for FDR < 0.1
+filtered_data <- data %>%
+  filter(FDR < 0.1)
+
+# Change gene counts to numerical values
+filtered_data$Count <- as.numeric(filtered_data$Count)
+
+# Create a faceted dot plot using ggplot2 with equal spacing on the y-axis
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = "blue", high = "red") +
+  labs(
+    title = "GO Term Enrichment Analysis",
+    x = "Fold Enrichment",
+    y = "GO Terms",
+    size = "Gene Count",
+    color = "FDR",
+    subtitle = "Genes upregulated in responsive pdx compared to poor-responders"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    strip.text = element_text(size = 7)
+  ) +
+  facet_grid(Category ~ ., scales = "free_y", space = "free_y")
+```
+
+```{r david_kegg_down}
+# Input kegg data from DAVID output for down regulated genes
+data <- read.csv("./data/david/david_kegg_limma_down.csv", header = TRUE)
+
+# Filter data for FDR < 0.1
+filtered_data <- data %>%
+  filter(FDR < 0.1)
+
+# Create a dot plot using ggplot2
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = "blue", high = "red") +
+  labs(
+    title = "Pathway Enrichment Analysis",
+    x = "Fold Enrichment",
+    y = "KEGG Pathways",
+    size = "Gene Count",
+    color = "FDR",
+    subtitle = "Genes down regulated in responsive pdx compared to poor-responders"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5)
+  )
+
+```
+
+```{r david_go_down}
+# Input GO data from DAVID output for downregulated genes
+data <- read.csv("./data/david/david_go_down_treat.csv", header = TRUE)
+
+# Filter data for FDR < 0.1
+filtered_data <- data %>%
+  filter(FDR < 0.1)
+
+# Create a faceted dot plot using ggplot2 with equal spacing on the y-axis
+ggplot(filtered_data, aes(x = Fold.Enrichment, y = reorder(Term, Fold.Enrichment))) +
+  geom_point(aes(size = Count, color = FDR), alpha = 0.7) +
+  scale_color_gradient(low = "blue", high = "red") +
+  labs(
+    title = "GO Term Enrichment Analysis",
+    x = "Fold Enrichment",
+    y = "GO Terms",
+    size = "Gene Count",
+    color = "FDR",
+    subtitle = "Genes down regulated in responsive pdx compared to poor-responders"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 10, hjust = 0.5),
+    strip.text = element_text(size = 7)  # Adjust the angle as needed
+  ) +
+  facet_grid(Category ~ ., scales = "free_y", space = "free_y")
+```
+
 ```{r}
 sessionInfo()
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
